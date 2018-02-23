@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">ToDoApp</string>
     <string name="Speichern">Speichern</string>
+    <string name="add_todo_title">Titel:</string>
+    <string name="add_todo_heading">Todo Hinzufügen</string>
+    <string name="add_todo_description">Beschreibung:</string>
+    <string name="add_todo_category">Kategorie:</string>
+    <string name="add_todo_priority">Priorität:</string>
+    <string name="add_cancel_btn">Abbruch</string>
+    <string name="add_ok_btn">ok</string>
+    <string name="add_todo_date">Datum:</string>
+    <string name="title_activity_main2">Main2Activity</string>
 </resources>
