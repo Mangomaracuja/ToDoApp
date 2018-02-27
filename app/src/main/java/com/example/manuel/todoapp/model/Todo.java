@@ -1,10 +1,9 @@
-package com.example.manuel.todoapp;
+package com.example.manuel.todoapp.model;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -14,7 +13,13 @@ import java.util.Collection;
 @DatabaseTable(tableName="todo")
 public class Todo {
 
-    @DatabaseField(generatedId = true, columnName = "_id")
+    public static final String ID = "_id";
+    public static final String DATE = "date";
+    public static final String TITLE = "title";
+    public static final String DESCRIPTION = "description";
+    public static final String PRIORITY = "priority";
+
+    @DatabaseField(generatedId = true, columnName = ID)
     private int id;
     @DatabaseField
     private long date;
@@ -24,8 +29,6 @@ public class Todo {
     private String description;
     @DatabaseField(canBeNull = false,foreign = true, foreignAutoRefresh = true)
     private Priority priority;
-    @ForeignCollectionField
-    private Collection<TodoCategory> categories;
 
     public Todo(){
 
@@ -61,13 +64,5 @@ public class Todo {
 
     public void setPriority(Priority priority) {
         this.priority = priority;
-    }
-
-    public Collection<TodoCategory> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(Collection<TodoCategory> categories) {
-        this.categories = categories;
     }
 }

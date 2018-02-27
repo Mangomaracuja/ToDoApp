@@ -1,4 +1,4 @@
-package com.example.manuel.todoapp;
+package com.example.manuel.todoapp.model;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -14,7 +14,7 @@ public class Priority {
     @DatabaseField
     private String name;
 
-    public Priority(){
+    public Priority() {
 
     }
 
@@ -24,5 +24,10 @@ public class Priority {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString(){
+        return name;
     }
 }

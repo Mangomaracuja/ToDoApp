@@ -1,4 +1,4 @@
-package com.example.manuel.todoapp;
+package com.example.manuel.todoapp.util;
 
 /**
  * Created by Alexander on 13.02.2018.
@@ -8,9 +8,12 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.manuel.todoapp.model.Category;
+import com.example.manuel.todoapp.model.Priority;
+import com.example.manuel.todoapp.model.Todo;
+import com.example.manuel.todoapp.model.TodoCategory;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -24,9 +27,9 @@ public class OrmDbHelper extends OrmLiteSqliteOpenHelper {
     private static final int DB_VERSION = 1;
 
     private Dao<Todo, Integer> todoDAO = null;
-    private Dao<TodoCategory, Integer> todoCategoryDAO = null;
     private Dao<Category, Integer> categoryDAO = null;
     private Dao<Priority, Integer> priorityDAO = null;
+    private Dao<TodoCategory, Integer> todoCategoryDAO = null;
 
     public OrmDbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -39,6 +42,7 @@ public class OrmDbHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(source, Category.class);
             TableUtils.createTable(source, Priority.class);
             TableUtils.createTable(source, TodoCategory.class);
+            Log.i(LOG + "iii", "tables erstellllllllllllllllllllllllllllllllllllllllt");
         } catch (SQLException ex) {
             Log.e(LOG, "error creating tables", ex);
         }
@@ -72,7 +76,7 @@ public class OrmDbHelper extends OrmLiteSqliteOpenHelper {
     }
 
     public Dao<Category, Integer> getCategoryDAO() throws SQLException {
-        if(categoryDAO == null) {
+        if (categoryDAO == null) {
             categoryDAO = getDao(Category.class);
         }
         return categoryDAO;
@@ -85,8 +89,8 @@ public class OrmDbHelper extends OrmLiteSqliteOpenHelper {
         return priorityDAO;
     }
 
-    public Dao<TodoCategory, Integer> getTodoCategoryDAO() throws  SQLException {
-        if (todoCategoryDAO == null){
+    public Dao<TodoCategory, Integer> getTodoCategoryDAO() throws SQLException {
+        if (todoCategoryDAO == null) {
             todoCategoryDAO = getDao(TodoCategory.class);
         }
         return todoCategoryDAO;

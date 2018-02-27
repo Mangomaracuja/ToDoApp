@@ -6,8 +6,13 @@
     <string name="add_todo_description">Beschreibung:</string>
     <string name="add_todo_category">Kategorie:</string>
     <string name="add_todo_priority">Priorität:</string>
-    <string name="add_cancel_btn">Abbruch</string>
-    <string name="add_ok_btn">ok</string>
+    <string name="cancel_btn">Abbruch</string>
+    <string name="ok_btn">OK</string>
     <string name="add_todo_date">Datum:</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="menu_edit_prio">Prioritäten bearbeiten</string>
+    <string name="menu_edit_category">Kategorien bearbeiten</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="delete">Löschen</string>
+    <string name="edit_prio_cat_name">Name:</string>
 </resources>

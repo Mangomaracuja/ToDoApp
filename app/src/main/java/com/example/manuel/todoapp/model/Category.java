@@ -1,4 +1,4 @@
-package com.example.manuel.todoapp;
+package com.example.manuel.todoapp.model;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -16,8 +16,6 @@ public class Category {
     private int id;
     @DatabaseField
     private String name;
-    @ForeignCollectionField
-    private Collection<TodoCategory> todos;
 
     public Category(){
 
@@ -29,5 +27,10 @@ public class Category {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString(){
+        return name;
     }
 }
