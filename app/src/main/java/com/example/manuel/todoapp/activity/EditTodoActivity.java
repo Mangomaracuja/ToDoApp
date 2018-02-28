@@ -41,6 +41,7 @@ public class EditTodoActivity extends AppCompatActivity implements OnClickListen
 
     private OrmDbHelper dbHelper = null;
     private String activityArt;
+    private Todo toEdit = null;
 
     private EditText todo_title_et;
     private EditText todo_description_et;
@@ -71,7 +72,7 @@ public class EditTodoActivity extends AppCompatActivity implements OnClickListen
 
         if (activityArt.equals(MainActivity.EXTRA_TODO_EDIT)) cancel_btn.setText("Löschen");
 
-        Todo toEdit = null;
+
 
         try {
             final Dao<Category, Integer> categoryDAO = getHelper().getCategoryDAO();
@@ -117,38 +118,65 @@ public class EditTodoActivity extends AppCompatActivity implements OnClickListen
     public void onClick(View v) {
         if (v == ok_btn) {
             if (activityArt.equals(MainActivity.EXTRA_TODO_ADD)) {
-                final Todo todo = new Todo();
-                todo.setTitle(todo_title_et.getText().toString());
-                todo.setDescription(todo_description_et.getText().toString());
+                toEdit = new Todo();
+                toEdit.setTitle(todo_title_et.getText().toString());
+                toEdit.setDescription(todo_description_et.getText().toString());
                 SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
                 try {
-                    todo.setDate(sdf.parse(todo_date_et.getText().toString()).getTime());
+                    toEdit.setDate(sdf.parse(todo_date_et.getText().toString()).getTime());
                 } catch (ParseException ex) {
                     Toast.makeText(this, "Datum ungültig!",Toast.LENGTH_SHORT).show();
                     Log.e(LOG, "error by parsing date", ex);
                     return;
                 }
 
-                todo.setPriority((Priority) todo_priority_sp.getSelectedItem());
+                toEdit.setPriority((Priority) todo_priority_sp.getSelectedItem());
 
 
                 try {
                     final Dao<Todo, Integer> todoDao = getHelper().getTodoDAO();
 
-                    todoDao.create(todo);
+                    todoDao.create(toEdit);
                     returnHome();
 
                 } catch (SQLException ex) {
                     Log.e(LOG, "error by creating todo", ex);
                 }
+            }else if(activityArt.equals(MainActivity.EXTRA_TODO_EDIT)) {
+                toEdit.setTitle(todo_title_et.getText().toString());
+                toEdit.setDescription(todo_description_et.getText().toString());
+                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+                try {
+                    toEdit.setDate(sdf.parse(todo_date_et.getText().toString()).getTime());
+                } catch (ParseException ex) {
+                    Toast.makeText(this, "Datum ungültig!",Toast.LENGTH_SHORT).show();
+                    Log.e(LOG, "error by parsing date", ex);
+                    return;
+                }
+
+                toEdit.setPriority((Priority) todo_priority_sp.getSelectedItem());
+
+                try {
+                    final Dao<Todo, Integer> todoDao = getHelper().getTodoDAO();
+
+                    todoDao.update(toEdit);
+                    returnHome();
+
+                } catch (SQLException ex) {
+                    Log.e(LOG, "error by updateing todo", ex);
+                }
             }
-        } else if (v == cancel_btn && activityArt.equals(MainActivity.EXTRA_TODO_EDIT)) {
-            try {
-                final Dao<Todo, Integer> todoDao = getHelper().getTodoDAO();
-                todoDao.deleteById(getIntent().getIntExtra("id", -1));
+        } else if (v == cancel_btn) {
+            if (activityArt.equals(MainActivity.EXTRA_TODO_EDIT)) {
+                try {
+                    final Dao<Todo, Integer> todoDao = getHelper().getTodoDAO();
+                    todoDao.deleteById(getIntent().getIntExtra("id", -1));
+                    returnHome();
+                } catch (SQLException ex) {
+                    Log.e(LOG, "error by deleting todo", ex);
+                }
+            }else if (activityArt.equals(MainActivity.EXTRA_TODO_ADD)){
                 returnHome();
-            } catch (SQLException ex) {
-                Log.e(LOG, "error by deleting todo", ex);
             }
         }
     }

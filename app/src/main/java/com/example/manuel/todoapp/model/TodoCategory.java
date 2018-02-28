@@ -18,4 +18,23 @@ public class TodoCategory {
     @DatabaseField(canBeNull = false,foreign = true)
     private Category category;
 
+    public TodoCategory() {
+
+    }
+
+    public Todo getTodo() {
+        return todo;
+    }
+
+    public void setTodo(Todo todo) {
+        this.todo = todo;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }
