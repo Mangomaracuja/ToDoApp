@@ -21,6 +21,7 @@
         <activity android:name=".activity.EditPrioCatActivity" />
         <activity android:name=".activity.ViewPriorityActivity"/>
         <activity android:name=".activity.ViewCategoryActivity"/>
+        <activity android:name=".activity.ChooseCategoryActivity"/>
     </application>
 
 </manifest>

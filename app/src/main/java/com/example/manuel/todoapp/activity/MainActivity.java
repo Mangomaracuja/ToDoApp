@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,7 +34,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
+public class MainActivity extends AppCompatActivity implements OnClickListener, OnItemClickListener {
 
     public static final String EXTRA_ACTIVITY_ART = "com.example.manuel.todoapp.ACTIVITY_ART";
     public static final String EXTRA_CALLER = "callingActivity";
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     public static final String EXTRA_CATEGORY_EDIT = "Kategorie Bearbeiten";
     public static final String EXTRA_PRIORITY_ADD = "Priorität Hinzufügen";
     public static final String EXTRA_PRIORITY_EDIT = "Priorität Bearbeiten";
+
+    private static final String LOG = MainActivity.class.getName();
 
     private OrmDbHelper dbHelper = null;
     private List<Todo> todos;
@@ -68,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         myList = (ListView) findViewById(R.id.todo_lv);
         myList.setOnItemClickListener(this);
-        //myList.setOnItemLongClickListener(this);   //for popup menu
 
         try {
             todoDAO = getHelper().getTodoDAO();
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
 
         Cursor cursor = results.getRawCursor();
-        String[] from = new String[]{"_id", "title", "date"};
+        String[] from = new String[]{Todo.ID, Todo.TITLE, Todo.DESCRIPTION};
         int[] to = new int[]{R.id.view_todo_id, R.id.view_todo_title, R.id.view_todo_date};
 
         SimpleCursorAdapter sca = new SimpleCursorAdapter(this,
@@ -123,10 +125,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         switch (item.getItemId()) {
             case R.id.menu_edit_priority:
                 intent = new Intent(this, ViewPriorityActivity.class);
-                startActivity(intent); break;
+                startActivity(intent);
+                break;
             case R.id.menu_edit_category:
                 intent = new Intent(this, ViewCategoryActivity.class);
-                startActivity(intent); break;
+                startActivity(intent);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -149,45 +153,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> adapterView, final View view, int i, long l) {
-        final PopupMenu popup = new PopupMenu(MainActivity.this, view);
-        //Inflating the Popup using xml file
-        popup.getMenuInflater().inflate(R.menu.popup_menu, popup.getMenu());
-
-        //registering popup with OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.menu_pop_delete) {
-                    TextView todoID = (TextView) view.findViewById(R.id.view_todo_id);
-                    try {
-                        todoDAO.deleteById(Integer.parseInt(todoID.getText().toString()));
-
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return true;
-            }
-        });
-        popup.show();
-        return false;
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        TextView todoID = (TextView) view.findViewById(R.id.view_todo_id);
-        TextView todoTitle = (TextView) view.findViewById(R.id.view_todo_title);
-        TextView todoDate = (TextView) view.findViewById(R.id.view_todo_date);
+        try {
+            TextView todoID = (TextView) view.findViewById(R.id.view_todo_id);
 
-        int todoID_val = Integer.parseInt(todoID.getText().toString());
-        String todoTitle_val = todoTitle.getText().toString();
-        String todoDate_val = todoDate.getText().toString();
+            int todoID_val = Integer.parseInt(todoID.getText().toString());
 
-        Intent modify_intent = new Intent(getApplicationContext(), EditTodoActivity.class);
-        modify_intent.putExtra(EXTRA_ACTIVITY_ART, EXTRA_TODO_EDIT);
-        modify_intent.putExtra(Todo.ID, todoID_val);
-        modify_intent.putExtra("title", todoTitle_val);
-        modify_intent.putExtra("date", todoDate_val);
-        startActivity(modify_intent);
+            Intent modify_intent = new Intent(getApplicationContext(), EditTodoActivity.class);
+            modify_intent.putExtra(EXTRA_ACTIVITY_ART, EXTRA_TODO_EDIT);
+            modify_intent.putExtra(Todo.ID, todoID_val);
+            startActivity(modify_intent);
+        } catch (NumberFormatException ex) {
+            Log.e(LOG, "error by selection", ex);
+        }
     }
 }

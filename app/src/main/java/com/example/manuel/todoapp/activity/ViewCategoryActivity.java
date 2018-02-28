@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,6 +31,8 @@ import java.util.List;
  */
 
 public class ViewCategoryActivity extends AppCompatActivity implements OnClickListener, AdapterView.OnItemClickListener{
+
+    private static final String LOG = ViewCategoryActivity.class.getName();
 
     private List<Category> categories;
     private Dao<Category, Integer> categoryDAO;
@@ -96,6 +99,7 @@ public class ViewCategoryActivity extends AppCompatActivity implements OnClickLi
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        try{
         TextView categoryID = (TextView) view.findViewById(R.id.view_category_id);
         TextView categoryName = (TextView) view.findViewById(R.id.view_category_name);
 
@@ -108,5 +112,8 @@ public class ViewCategoryActivity extends AppCompatActivity implements OnClickLi
         modify_intent.putExtra("id", categoryID_val);
         modify_intent.putExtra("name", categoryName_val);
         startActivity(modify_intent);
+        } catch (NumberFormatException | NullPointerException ex) {
+            Log.e(LOG, "error by selection", ex);
+        }
     }
 }

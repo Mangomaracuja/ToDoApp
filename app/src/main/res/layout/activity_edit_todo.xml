@@ -87,7 +87,7 @@
 
             <Spinner
                 android:id="@+id/add_todo_priority_sp"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dip"
                 android:layout_weight="2" />
@@ -100,16 +100,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"
+                android:layout_marginTop="10dp"
                 android:text="@string/add_todo_category"
                 android:textSize="15sp" />
 
-            <Spinner
-                android:id="@+id/add_todo_category_sp"
-                android:layout_width="fill_parent"
+            <TextView
+                android:id="@+id/add_todo_category_tv"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="0dip"
-                android:layout_weight="2" />
+                android:layout_marginTop="10dp"
+                android:textSize="15dp"
+                android:hint="Kategorien auswählen"/>
+
         </TableRow>
     </TableLayout>
 

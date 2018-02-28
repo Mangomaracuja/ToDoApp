@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,7 +30,9 @@ import java.util.List;
  * Created by Manuel on 27.02.2018.
  */
 
-public class ViewPriorityActivity extends AppCompatActivity implements View.OnClickListener, OnItemClickListener{
+public class ViewPriorityActivity extends AppCompatActivity implements View.OnClickListener, OnItemClickListener {
+
+    private static final String LOG = ViewPriorityActivity.class.getName();
 
     private List<Priority> priorities;
     private Dao<Priority, Integer> prioDAO;
@@ -39,7 +42,7 @@ public class ViewPriorityActivity extends AppCompatActivity implements View.OnCl
     private ListView prioLv;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Prioritäten");
         setContentView(R.layout.activity_view_priority);
@@ -82,10 +85,10 @@ public class ViewPriorityActivity extends AppCompatActivity implements View.OnCl
         AndroidDatabaseResults results = (AndroidDatabaseResults) iterator.getRawResults();
         Cursor cursor = results.getRawCursor();
         String[] from = new String[]{"_id", "name"};
-        int[] to = new int[]{R.id.view_priority_id,R.id.view_priority_name};
+        int[] to = new int[]{R.id.view_priority_id, R.id.view_priority_name};
 
         SimpleCursorAdapter sca = new SimpleCursorAdapter(this,
-                R.layout.view_priority_entry, cursor, from, to,0);
+                R.layout.view_priority_entry, cursor, from, to, 0);
 
         prioLv.setAdapter(sca);
     }
@@ -99,17 +102,21 @@ public class ViewPriorityActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        TextView prioID = (TextView) view.findViewById(R.id.view_priority_id);
-        TextView prioName = (TextView) view.findViewById(R.id.view_priority_name);
+        try {
+            TextView prioID = (TextView) view.findViewById(R.id.view_priority_id);
+            TextView prioName = (TextView) view.findViewById(R.id.view_priority_name);
 
-        int prioID_val = Integer.parseInt(prioID.getText().toString());
-        String prioName_val = prioName.getText().toString();
+            int prioID_val = Integer.parseInt(prioID.getText().toString());
+            String prioName_val = prioName.getText().toString();
 
-        Intent modify_intent = new Intent(getApplicationContext(),EditPrioCatActivity.class);
-        modify_intent.putExtra(MainActivity.EXTRA_ACTIVITY_ART, MainActivity.EXTRA_PRIORITY_EDIT);
-        modify_intent.putExtra(MainActivity.EXTRA_CALLER, getIntent().getComponent().getClassName());
-        modify_intent.putExtra("id", prioID_val);
-        modify_intent.putExtra("name", prioName_val);
-        startActivity(modify_intent);
+            Intent modify_intent = new Intent(getApplicationContext(), EditPrioCatActivity.class);
+            modify_intent.putExtra(MainActivity.EXTRA_ACTIVITY_ART, MainActivity.EXTRA_PRIORITY_EDIT);
+            modify_intent.putExtra(MainActivity.EXTRA_CALLER, getIntent().getComponent().getClassName());
+            modify_intent.putExtra("id", prioID_val);
+            modify_intent.putExtra("name", prioName_val);
+            startActivity(modify_intent);
+        } catch (NumberFormatException ex) {
+            Log.e(LOG, "error by selection", ex);
+        }
     }
 }

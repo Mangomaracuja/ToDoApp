@@ -30,4 +30,8 @@ public class Priority {
     public String toString(){
         return name;
     }
+
+    public int getID() {
+        return id;
+    }
 }

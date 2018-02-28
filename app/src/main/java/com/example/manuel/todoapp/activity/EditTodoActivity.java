@@ -12,8 +12,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.manuel.todoapp.model.TodoCategory;
 import com.example.manuel.todoapp.util.OrmDbHelper;
 import com.example.manuel.todoapp.R;
 import com.example.manuel.todoapp.model.Category;
@@ -27,6 +29,7 @@ import com.j256.ormlite.dao.Dao;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -42,11 +45,12 @@ public class EditTodoActivity extends AppCompatActivity implements OnClickListen
     private OrmDbHelper dbHelper = null;
     private String activityArt;
     private Todo toEdit = null;
+    private ArrayList<Integer> choosedCategories = null;
 
     private EditText todo_title_et;
     private EditText todo_description_et;
     private EditText todo_date_et;
-    private Spinner todo_category_sp;
+    private TextView todo_category_tv;
     private Spinner todo_priority_sp;
     private Button cancel_btn;
     private Button ok_btn;
@@ -62,16 +66,15 @@ public class EditTodoActivity extends AppCompatActivity implements OnClickListen
         setTitle(activityArt);
         setContentView(R.layout.activity_edit_todo);
 
-        todo_title_et = (EditText) findViewById(R.id.add_todo_title_et);
-        todo_description_et = (EditText) findViewById(R.id.add_todo_description_et);
-        todo_date_et = (EditText) findViewById(R.id.add_todo_date_et);
-        todo_category_sp = (Spinner) findViewById(R.id.add_todo_category_sp);
-        todo_priority_sp = (Spinner) findViewById(R.id.add_todo_priority_sp);
-        cancel_btn = (Button) findViewById(R.id.add_todo_cancel_btn);
-        ok_btn = (Button) findViewById(R.id.add_todo_ok_btn);
+        todo_title_et = findViewById(R.id.add_todo_title_et);
+        todo_description_et = findViewById(R.id.add_todo_description_et);
+        todo_date_et = findViewById(R.id.add_todo_date_et);
+        todo_category_tv = findViewById(R.id.add_todo_category_tv);
+        todo_priority_sp = findViewById(R.id.add_todo_priority_sp);
+        cancel_btn = findViewById(R.id.add_todo_cancel_btn);
+        ok_btn = findViewById(R.id.add_todo_ok_btn);
 
         if (activityArt.equals(MainActivity.EXTRA_TODO_EDIT)) cancel_btn.setText("Löschen");
-
 
 
         try {
@@ -82,24 +85,24 @@ public class EditTodoActivity extends AppCompatActivity implements OnClickListen
             priorities = priorityDAO.queryForAll();
 
 
-            todo_category_sp.setAdapter(new ArrayAdapter<Category>(this, android.R.layout.simple_spinner_item, categories));
             todo_priority_sp.setAdapter(new ArrayAdapter<Priority>(this, android.R.layout.simple_spinner_item, priorities));
-            if(activityArt.equals(MainActivity.EXTRA_TODO_EDIT)){
-                toEdit = getHelper().getTodoDAO().queryForId(intent.getIntExtra(Todo.ID,-1));
+            if (activityArt.equals(MainActivity.EXTRA_TODO_EDIT)) {
+                toEdit = getHelper().getTodoDAO().queryForId(intent.getIntExtra(Todo.ID, -1));
+                todo_title_et.setText(toEdit.getTitle());
+                todo_description_et.setText(toEdit.getDescription());
+                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+                todo_date_et.setText(sdf.format(new Date(toEdit.getDate())));
+                todo_priority_sp.setSelection(priorities.indexOf(toEdit.getPriority()));
             }
         } catch (SQLException ex) {
             Log.e(LOG, "cannot get todoDAO", ex);
         }
 
-        if(activityArt.equals(MainActivity.EXTRA_TODO_EDIT) && toEdit != null){
-            todo_title_et.setText(toEdit.getTitle());
-            todo_description_et.setText(toEdit.getDescription());
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-            todo_date_et.setText(sdf.format(new Date(toEdit.getDate())));
-            todo_priority_sp.setSelection(priorities.indexOf(toEdit.getPriority()));
-            //todo_category_sp.setSelection(categories.indexOf(toEdit));
+        if (activityArt.equals(MainActivity.EXTRA_TODO_EDIT) && toEdit != null) {
+
         }
 
+        todo_category_tv.setOnClickListener(this);
         cancel_btn.setOnClickListener(this);
         ok_btn.setOnClickListener(this);
     }
@@ -119,85 +122,115 @@ public class EditTodoActivity extends AppCompatActivity implements OnClickListen
         if (v == ok_btn) {
             if (activityArt.equals(MainActivity.EXTRA_TODO_ADD)) {
                 toEdit = new Todo();
-                toEdit.setTitle(todo_title_et.getText().toString());
-                toEdit.setDescription(todo_description_et.getText().toString());
-                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-                try {
-                    toEdit.setDate(sdf.parse(todo_date_et.getText().toString()).getTime());
-                } catch (ParseException ex) {
-                    Toast.makeText(this, "Datum ungültig!",Toast.LENGTH_SHORT).show();
-                    Log.e(LOG, "error by parsing date", ex);
-                    return;
-                }
+            }
+            toEdit.setTitle(todo_title_et.getText().toString());
+            toEdit.setDescription(todo_description_et.getText().toString());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+            try {
+                toEdit.setDate(sdf.parse(todo_date_et.getText().toString()).getTime());
+            } catch (ParseException ex) {
+                Toast.makeText(this, "Datum ungültig!", Toast.LENGTH_SHORT).show();
+                Log.e(LOG, "error by parsing date", ex);
+                return;
+            }
 
-                toEdit.setPriority((Priority) todo_priority_sp.getSelectedItem());
+            toEdit.setPriority((Priority) todo_priority_sp.getSelectedItem());
 
 
+            if(activityArt.equals(MainActivity.EXTRA_TODO_ADD)){
                 try {
                     final Dao<Todo, Integer> todoDao = getHelper().getTodoDAO();
 
                     todoDao.create(toEdit);
+                    createTodoCategory();
                     returnHome();
 
                 } catch (SQLException ex) {
                     Log.e(LOG, "error by creating todo", ex);
                 }
-            }else if(activityArt.equals(MainActivity.EXTRA_TODO_EDIT)) {
-                toEdit.setTitle(todo_title_et.getText().toString());
-                toEdit.setDescription(todo_description_et.getText().toString());
-                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-                try {
-                    toEdit.setDate(sdf.parse(todo_date_et.getText().toString()).getTime());
-                } catch (ParseException ex) {
-                    Toast.makeText(this, "Datum ungültig!",Toast.LENGTH_SHORT).show();
-                    Log.e(LOG, "error by parsing date", ex);
-                    return;
-                }
-
-                toEdit.setPriority((Priority) todo_priority_sp.getSelectedItem());
-
-                try {
-                    final Dao<Todo, Integer> todoDao = getHelper().getTodoDAO();
-
-                    todoDao.update(toEdit);
-                    returnHome();
-
-                } catch (SQLException ex) {
-                    Log.e(LOG, "error by updateing todo", ex);
-                }
+                return;
             }
+
+            createTodoCategory();
+
+            try {
+                final Dao<Todo, Integer> todoDao = getHelper().getTodoDAO();
+
+                todoDao.update(toEdit);
+                returnHome();
+
+            } catch (SQLException ex) {
+                Log.e(LOG, "error by updating todo", ex);
+            }
+
         } else if (v == cancel_btn) {
             if (activityArt.equals(MainActivity.EXTRA_TODO_EDIT)) {
                 try {
                     final Dao<Todo, Integer> todoDao = getHelper().getTodoDAO();
-                    todoDao.deleteById(getIntent().getIntExtra("id", -1));
+                    todoDao.deleteById(getIntent().getIntExtra(Todo.ID, -1));
                     returnHome();
                 } catch (SQLException ex) {
                     Log.e(LOG, "error by deleting todo", ex);
                 }
-            }else if (activityArt.equals(MainActivity.EXTRA_TODO_ADD)){
+            } else if (activityArt.equals(MainActivity.EXTRA_TODO_ADD)) {
                 returnHome();
+            }
+        } else if (v == todo_category_tv) {
+            Intent intent = new Intent(this, ChooseCategoryActivity.class);
+            startActivityForResult(intent, 1);
+        }
+    }
+
+    private void createTodoCategory(){
+        if (choosedCategories != null){
+
+
+            try {
+                final Dao<TodoCategory, Integer> todoCategoryDAO = getHelper().getTodoCategoryDAO();
+                final Dao<Category, Integer> categoryDAO = getHelper().getCategoryDAO();
+                for (int i:choosedCategories){
+                    try {
+
+                        final TodoCategory tc = new TodoCategory();
+                        tc.setCategory(categoryDAO.queryForId(i));
+                        tc.setTodo(toEdit);
+                        todoCategoryDAO.create(tc);
+                    } catch (SQLException ex) {
+                        Log.e(LOG, "error by updating todo_category", ex);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if (resultCode == MainActivity.RESULT_OK) {
+                choosedCategories = data.getIntegerArrayListExtra("result");
+                populateChoosedCategory();
+            }
+            if (resultCode == MainActivity.RESULT_CANCELED) {
+                //Write your code if there's no result
             }
         }
     }
 
-    public void populateSpinnerPrioView() throws SQLException {
-        Dao<Priority, Integer> prioDAO = getHelper().getPriorityDAO();
-        List<Priority> priorities = prioDAO.queryForAll();
-
-
-        CloseableIterator<Priority> iterator = prioDAO.closeableIterator();
-
-        // get the raw results which can be cast under Android
-        AndroidDatabaseResults results = (AndroidDatabaseResults) iterator.getRawResults();
-        Cursor cursor = results.getRawCursor();
-        String[] from = new String[]{"_id", "name"};
-        int[] to = new int[]{R.id.view_priority_id, R.id.view_priority_name};
-
-        SimpleCursorAdapter sca = new SimpleCursorAdapter(this,
-                R.layout.view_priority_entry, cursor, from, to, 0);
-
-        todo_priority_sp.setAdapter(sca);
+    private void populateChoosedCategory() {
+        ArrayList<String> choosed = new ArrayList<>();
+        for (int i : choosedCategories){
+            try {
+                final Dao<Category, Integer> cats = getHelper().getCategoryDAO();
+                choosed.add(cats.queryForId(i).toString());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        todo_category_tv.setText(choosed.toString());
     }
 
     public OrmDbHelper getHelper() {
